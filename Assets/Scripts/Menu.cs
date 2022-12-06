@@ -43,11 +43,11 @@ public class Menu : MonoBehaviourPunCallbacks, ILobbyCallbacks
 
         Cursor.lockState = CursorLockMode.None;
 
-        if(PhotonNetwork.InRoom)
+        if (PhotonNetwork.InRoom)
         {
             SetScreen(lobbyScreen);
             UpdateLobbyUI();
-            
+
             PhotonNetwork.CurrentRoom.IsVisible = true;
             PhotonNetwork.CurrentRoom.IsOpen = true;
         }
@@ -62,7 +62,7 @@ public class Menu : MonoBehaviourPunCallbacks, ILobbyCallbacks
 
         screen.SetActive(true);
 
-        if(screen == lobbyBrowserScreen)
+        if (screen == lobbyBrowserScreen)
             UpdateLobbyBrowserUI();
     }
 
@@ -71,7 +71,7 @@ public class Menu : MonoBehaviourPunCallbacks, ILobbyCallbacks
         SetScreen(mainScreen);
     }
 
-    public void OnPlayerNameValueChanged (TMP_InputField playerNameInput)
+    public void OnPlayerNameValueChanged(TMP_InputField playerNameInput)
     {
         PhotonNetwork.NickName = playerNameInput.text;
     }
@@ -110,13 +110,13 @@ public class Menu : MonoBehaviourPunCallbacks, ILobbyCallbacks
 
         playerListText.text = "";
 
-        foreach(Player player in PhotonNetwork.PlayerList)
+        foreach (Player player in PhotonNetwork.PlayerList)
             playerListText.text += player.NickName + "\n";
 
         roomInfoText.text = "<b>Room Name:</b>\n" + PhotonNetwork.CurrentRoom.Name;
     }
 
-    public override void OnPlayerLeftRoom (Player otherPlayer)
+    public override void OnPlayerLeftRoom(Player otherPlayer)
     {
         UpdateLobbyUI();
     }
@@ -148,7 +148,7 @@ public class Menu : MonoBehaviourPunCallbacks, ILobbyCallbacks
         foreach (GameObject button in roomButtons)
             button.SetActive(false);
 
-        for(int x = 0; x < roomList.Count; ++x)
+        for (int x = 0; x < roomList.Count; ++x)
         {
             GameObject button = x >= roomButtons.Count ? CreateRoomButton() : roomButtons[x];
 
@@ -171,13 +171,13 @@ public class Menu : MonoBehaviourPunCallbacks, ILobbyCallbacks
         UpdateLobbyBrowserUI();
     }
 
-    public void OnJoinRoomButton (string roomName)
+    public void OnJoinRoomButton(string roomName)
     {
         NetworkManager.instance.JoinRoom(roomName);
     }
 
-    public override void OnRoomListUpdate (List<RoomInfo> allRooms)
+    public override void OnRoomListUpdate(List<RoomInfo> allRooms)
     {
         roomList = allRooms;
     }
-}   
+}

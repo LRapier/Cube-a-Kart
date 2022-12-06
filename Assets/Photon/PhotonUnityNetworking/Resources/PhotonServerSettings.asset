@@ -39,6 +39,12 @@ MonoBehaviour:
   - DestroySpaceship
   - Fire
   - RespawnSpaceship
+  - ChangeScene
+  - ImInGame
+  - SpawnPlayer
+  - UpdateLobbyUI
+  - WinGame
+  - Initialize
   DisableAutoOpenWizard: 1
   ShowSettings: 0
   DevRegionSetOnce: 0
