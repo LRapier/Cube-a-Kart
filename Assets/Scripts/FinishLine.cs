@@ -2,9 +2,21 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using Photon.Pun;
+using TMPro;
 
-public class FinishLine : MonoBehaviour
+public class FinishLine : MonoBehaviourPun
 {
+    public int place = 1;
+    public bool halfway;
+    public GameUI gameUI;
+
+    public static FinishLine instance;
+
+    void Awake()
+    {
+        instance = this;
+    }
+
     void OnTriggerEnter(Collider other)
     {
         if (!PhotonNetwork.IsMasterClient)
@@ -14,16 +26,20 @@ public class FinishLine : MonoBehaviour
         {
             PlayerController player = GameManager.instance.GetPlayer(other.gameObject);
 
-            if (!player.started)
-                player.started = true;
-            else if (player.notCheating)
+            if (!halfway)
             {
-                player.laps++;
-                player.notCheating = false;
+                player.photonView.RPC("CompleteLap", player.photonPlayer, place);
             }
-
-            if (player.laps == 3)
-                player.Finish();
+            else
+            {
+                player.photonView.RPC("NotCheating", player.photonPlayer);
+            }
         }
+    }
+
+    [PunRPC]
+    void IncreasePlace()
+    {
+        place++;
     }
 }

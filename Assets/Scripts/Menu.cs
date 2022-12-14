@@ -9,6 +9,7 @@ using Photon.Realtime;
 public class Menu : MonoBehaviourPunCallbacks, ILobbyCallbacks
 {
     [Header("Screens")]
+    public GameObject loginScreen;
     public GameObject mainScreen;
     public GameObject createRoomScreen;
     public GameObject lobbyScreen;

@@ -8,11 +8,13 @@ public class PlayerController : MonoBehaviourPun
 {
     public int id;
     public Rigidbody rb;
-    public float forwardForce = 25f;
-    public float turnForce;
+    public float forwardForce = 50f;
+    public float turnForce = 50f;
     public Vector3 point;
 
-    public int laps = 1;
+    public int laps;
+    public int place = 0;
+    public int priority;
     public bool started = false;
     public bool notCheating = false;
     public Player photonPlayer;
@@ -27,32 +29,30 @@ public class PlayerController : MonoBehaviourPun
 
     void FixedUpdate()
     {
-        Vector3 dir = (transform.forward) * forwardForce;
-        dir.y = rb.velocity.y;
+        if (photonView.IsMine)
+        {
+            Vector3 dir = (transform.forward) * forwardForce;
+            dir.y = rb.velocity.y;
 
-        rb.velocity = dir;
+            rb.velocity = dir;
 
-        point = transform.position;
-        if (Input.GetKey(KeyCode.A))
-        {
-            transform.RotateAround(point, -Vector3.up, turnForce * Time.deltaTime);
-        }
-        else if (Input.GetKey(KeyCode.D))
-        {
-            transform.RotateAround(point, Vector3.up, turnForce * Time.deltaTime);
-        }
-        if (Input.GetKey("left"))
-        {
-            transform.RotateAround(point, -Vector3.up, turnForce * Time.deltaTime);
-        }
-        else if (Input.GetKey("right"))
-        {
-            transform.RotateAround(point, Vector3.up, turnForce * Time.deltaTime);
-        }
-        if (rb.position.y <= -1f)
-        {
-            //Respawn();
-            Debug.Log(rb.position.x);
+            point = transform.position;
+            if (Input.GetKey(KeyCode.A))
+            {
+                transform.RotateAround(point, -Vector3.up, turnForce * Time.deltaTime);
+            }
+            else if (Input.GetKey(KeyCode.D))
+            {
+                transform.RotateAround(point, Vector3.up, turnForce * Time.deltaTime);
+            }
+            if (Input.GetKey("left"))
+            {
+                transform.RotateAround(point, -Vector3.up, turnForce * Time.deltaTime);
+            }
+            else if (Input.GetKey("right"))
+            {
+                transform.RotateAround(point, Vector3.up, turnForce * Time.deltaTime);
+            }
         }
     }
 
@@ -62,6 +62,7 @@ public class PlayerController : MonoBehaviourPun
         photonPlayer = player;
         id = player.ActorNumber;
         GameManager.instance.players[id - 1] = this;
+        GameManager.instance.spawnPointToUse = id-1;
 
         MeshRenderer renderer = GetComponent<MeshRenderer>();
         switch (id)
@@ -87,63 +88,72 @@ public class PlayerController : MonoBehaviourPun
         }
 
         if (!photonView.IsMine)
+        {
             rb.isKinematic = true;
-    }
-
-    void Respawn()
-    {
-        if((transform.position.z >= 150 && transform.position.z <= 225) && (transform.position.x >= -150 && transform.position.x <= 50))
-        {
-
+            GetComponentInChildren<Camera>().gameObject.SetActive(false);
         }
-        else if ((transform.position.z >= 225 && transform.position.z <= 475) && (transform.position.x >= -150 && transform.position.x <= 225))
+        else
         {
+            GameUI.instance.Initialize(this);
+            started = true;
+            forwardForce = 0f;
+            turnForce = 0f;
 
-        }
-        else if ((transform.position.z >= 290 && transform.position.z <= 475) && (transform.position.x >= -150 && transform.position.x <= -75))
-        {
+            StartCoroutine(StartRaceCoRoutine());
 
-        }
-        else if ((transform.position.z >= 225 && transform.position.z <= 475) && (transform.position.x >= -300 && transform.position.x <= -150))
-        {
+            IEnumerator StartRaceCoRoutine()
+            {
+                yield return new WaitForSeconds(3f);
 
-        }
-        else if ((transform.position.z >= 225 && transform.position.z <= 475) && (transform.position.x >= -300 && transform.position.x <= 225))
-        {
-
-        }
-        else if ((transform.position.z >= 225 && transform.position.z <= 475) && (transform.position.x >= -300 && transform.position.x <= 225))
-        {
-
-        }
-        else if ((transform.position.z >= 225 && transform.position.z <= 475) && (transform.position.x >= -300 && transform.position.x <= 225))
-        {
-
-        }
-        else if ((transform.position.z >= 225 && transform.position.z <= 475) && (transform.position.x >= -300 && transform.position.x <= 225))
-        {
-
-        }
-        else if ((transform.position.z >= 225 && transform.position.z <= 475) && (transform.position.x >= -300 && transform.position.x <= 225))
-        {
-
-        }
-        else if ((transform.position.z >= 225 && transform.position.z <= 475) && (transform.position.x >= -300 && transform.position.x <= 225))
-        {
-
-        }
-        else if ((transform.position.z >= 225 && transform.position.z <= 475) && (transform.position.x >= -300 && transform.position.x <= 225))
-        {
-
-        }
-        else if ((transform.position.z >= 225 && transform.position.z <= 475) && (transform.position.x >= -300 && transform.position.x <= 225))
-        {
-
+                StartRace();
+            }
         }
     }
 
     public void Finish()
     {
+        forwardForce = 0f;
+        turnForce = 0f;
+        this.transform.position = new Vector3(this.transform.position.x, 1000, this.transform.position.z);
+        rb.constraints = RigidbodyConstraints.FreezePositionY;
+        GameUI.instance.Finish();
+        Leaderboard.instance.leaderboardCanvas.SetActive(true);
+        Leaderboard.instance.DisplayLeaderboard();
+        Leaderboard.instance.SetLeaderboardEntry(-Mathf.RoundToInt(GameUI.instance.finishTime * 1000.0f));
+    }
 
+    public void SetPlace(int placement)
+    {
+        place = placement;
+    }
+
+    public void StartRace()
+    {
+        forwardForce = 50f;
+        turnForce = 50f;
+    }
+
+    [PunRPC]
+    public void CompleteLap(int placement)
+    {
+        if (notCheating)
+        {
+            laps++;
+            if (laps == 3)
+            {
+                SetPlace(placement);
+                FinishLine.instance.photonView.RPC("IncreasePlace", RpcTarget.All);
+                GameUI.instance.lapNum.gameObject.SetActive(false);
+                Finish();
+            }
+            GameUI.instance.lapNum.text = "LAP " + (laps + 1);
+            notCheating = false;
+        }
+    }
+
+    [PunRPC]
+    public void NotCheating()
+    {
+        notCheating = true;
     }
 }

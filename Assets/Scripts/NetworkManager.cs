@@ -46,6 +46,13 @@ public class NetworkManager : MonoBehaviourPunCallbacks
     public void ChangeScene(string sceneName)
     {
         PhotonNetwork.LoadLevel(sceneName);
+
+        StartCoroutine(StallCoRoutine());
+
+        IEnumerator StallCoRoutine()
+        {
+            yield return new WaitForSeconds(1f);
+        }
     }
 
     public override void OnDisconnected(DisconnectCause cause)
@@ -56,6 +63,6 @@ public class NetworkManager : MonoBehaviourPunCallbacks
     public override void OnPlayerLeftRoom(Player otherPlayer)
     {
         GameManager.instance.alivePlayers--;
-        GameUI.instance.UpdatePlayerInfoText();
+        GameManager.instance.alivePlayers--;
     }
 }

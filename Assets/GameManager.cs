@@ -7,17 +7,18 @@ using System.Linq;
 
 public class GameManager : MonoBehaviourPun
 {
-    //public float postGameTime;
-
     [Header("Players")]
     public string playerPrefabLocation;
     public PlayerController[] players;
-    public Transform[] spawnPoints;
+    public List<Transform> spawnPoints;
+    public int spawnPointToUse;
     public int alivePlayers;
 
     private int playersInGame;
+    private int playersFinished;
 
     public static GameManager instance;
+    public bool started;
 
     void Awake()
     {
@@ -38,13 +39,17 @@ public class GameManager : MonoBehaviourPun
         playersInGame++;
 
         if (PhotonNetwork.IsMasterClient && playersInGame == PhotonNetwork.PlayerList.Length)
+        {
             photonView.RPC("SpawnPlayer", RpcTarget.All);
+            photonView.RPC("SwitchSpawnPoint", RpcTarget.All);
+            GameUI.instance.photonView.RPC("StartCountdown", RpcTarget.All);
+        }
     }
 
     [PunRPC]
     void SpawnPlayer()
     {
-        GameObject playerObj = PhotonNetwork.Instantiate(playerPrefabLocation, spawnPoints[Random.Range(0, spawnPoints.Length)].position, Quaternion.identity);
+        GameObject playerObj = PhotonNetwork.Instantiate(playerPrefabLocation, spawnPoints[PhotonNetwork.LocalPlayer.ActorNumber - 1].position, Quaternion.identity);
 
         playerObj.GetComponent<PlayerController>().photonView.RPC("Initialize", RpcTarget.All, PhotonNetwork.LocalPlayer);
     }
@@ -70,13 +75,23 @@ public class GameManager : MonoBehaviourPun
     }
 
     [PunRPC]
-    void WinGame(int winningPlayer)
+    void CheckGameWon()
     {
-
+        playersFinished++;
+        if (playersInGame == playersFinished)
+        {
+            GameUI.instance.GameOver();
+        } 
     }
 
     void GoBackToMenu()
     {
         NetworkManager.instance.ChangeScene("Menu");
+    }
+
+    [PunRPC]
+    void SwitchSpawnPoint()
+    {
+        spawnPointToUse++;
     }
 }
