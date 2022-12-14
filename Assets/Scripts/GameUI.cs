@@ -51,7 +51,7 @@ public class GameUI : MonoBehaviourPun
                 break;
         }
         finishTime = Mathf.FloorToInt(Time.time - startTime);
-        finishText.text = ("FINISH!\nYOU GOT " + player.place + placementSuffix + " PLACE!\n\nYOUR TIME WAS " + Mathf.FloorToInt((finishTime) / 60) + ":" + Mathf.FloorToInt((Time.time - startTime) % 60));
+        finishText.text = ("FINISH!\nYOU GOT " + player.place + placementSuffix + " PLACE!\n\nYOUR TIME WAS " + Mathf.FloorToInt((finishTime) / 60) + ":" + Mathf.FloorToInt((finishTime) % 60).ToString("00"));
         timerText.gameObject.SetActive(false);
     }
 

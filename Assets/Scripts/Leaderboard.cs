@@ -13,6 +13,7 @@ public class Leaderboard : MonoBehaviour
 
     public void DisplayLeaderboard()
     {
+        Debug.Log("refresh");
         GetLeaderboardRequest getLeaderboardRequest = new GetLeaderboardRequest
         {
             StatisticName = "FastestTime",

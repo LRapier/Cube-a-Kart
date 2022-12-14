@@ -18,7 +18,6 @@ public class Menu : MonoBehaviourPunCallbacks, ILobbyCallbacks
     [Header("Main Screen")]
     public Button createRoomButton;
     public Button findRoomButton;
-    public TMP_InputField playerNameInputField;
 
     [Header("Create Room Screen")]
     public TMP_InputField roomNameInputField;
@@ -39,7 +38,6 @@ public class Menu : MonoBehaviourPunCallbacks, ILobbyCallbacks
     {
         createRoomButton.interactable = false;
         findRoomButton.interactable = false;
-        playerNameInputField.text = "";
         roomNameInputField.text = "";
 
         Cursor.lockState = CursorLockMode.None;

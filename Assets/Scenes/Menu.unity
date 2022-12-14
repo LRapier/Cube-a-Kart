@@ -302,7 +302,6 @@ MonoBehaviour:
   lobbyBrowserScreen: {fileID: 5996260}
   createRoomButton: {fileID: 162297516}
   findRoomButton: {fileID: 793419381}
-  playerNameInputField: {fileID: 0}
   roomNameInputField: {fileID: 855454288}
   playerListText: {fileID: 1736823153}
   roomInfoText: {fileID: 1299804266}
